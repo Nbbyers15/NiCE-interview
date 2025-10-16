@@ -1,0 +1,19 @@
+
+»
+java:S1319R"sThe return type of this method should be an interface such as "Map" rather than the implementation "LinkedHashMap".(îÁ½°úÿÿÿÿ8åŒÊ¸3J$401971e3-deb9-43dd-af7f-5eb0c8089fc8
+­
+java:S1488S"eImmediately return this expression instead of assigning it to the temporary variable "sortedPhrases".(Š„ÑŸıÿÿÿÿ8æŒÊ¸3J$110548f5-5fab-4866-8c87-d9eaee71e007
+_
+java:S16439"Use a StringBuilder instead.(Ÿôºò8èŒÊ¸3J$c11ed448-5de1-4699-92bd-0a2f345de332
+•
+java:S3776	"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(ÛÛ¯ø8ìŒÊ¸3J$e2301a5d-de0c-4eec-a634-1f714645ef35
+l	java:S106"+Replace this use of System.out by a logger.(Í•ò8ìŒÊ¸3J$a70902db-45ec-47db-a98c-91f80b46f959
+ª
+java:S4087"bRemove this "close" call; closing the resource is handled automatically by the try-with-resources.(ƒµ¹ıÿÿÿÿ8ïŒÊ¸3J$d6872ef6-7f1d-4be9-95ef-b4c39da1e1cb
+r	java:S106"+Replace this use of System.err by a logger.(Ù¢ß¯üÿÿÿÿ8ôŒÊ¸3J$b9b543a7-c8f9-4b45-b1be-12307572c832
+r	java:S106."+Replace this use of System.err by a logger.(æúŞúüÿÿÿÿ8õŒÊ¸3J$c5d9b983-cf69-42a8-b35b-24c00106bac1
+m	java:S106C"+Replace this use of System.out by a logger.(æ¨Ñ’8ùŒÊ¸3J$6f43134d-a90e-4d88-8a35-c99e8d6ca4c1
+L	java:S106J"+Replace this use of System.out by a logger.(’î¿ãüÿÿÿÿ8ñåØ¸3
+m	java:S106L"+Replace this use of System.err by a logger.(„ê«ñ8ùŒÊ¸3J$8d517f27-77a3-46d5-b681-3b9590c94ec9
+œ
+java:S5850i"TGroup parts of the regex together to make the intended operator precedence explicit.(ï¼©Úøÿÿÿÿ8ıŒÊ¸3J$48296983-be5d-4c34-b59b-790c6bb00821
