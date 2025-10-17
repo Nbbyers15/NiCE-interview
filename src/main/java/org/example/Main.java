@@ -33,33 +33,33 @@ public class Main
 
     for (String filePath: fileNames) {
       List<String> words = new ArrayList<>();
+      List<ArrayDeque<String>> phraseBuilder = new ArrayList<>(maxNgramSize);
 
       try {
         File file = new File(filePath);
         Scanner scanner = new Scanner(file);
         while (scanner.hasNext()) {
           String word = cleanWord(scanner.next());
-          words.add(word);
+          for (int i = 0; i < maxNgramSize-1; i++) {
+            if (phraseBuilder.size() <= i) {
+              ArrayDeque<String> starter = new ArrayDeque<>();
+              starter.add(word);
+              phraseBuilder.add(starter);
+            }
+            else {
+              phraseBuilder.get(i).add(word);
+              if (phraseBuilder.get(i).size() == i + 2)
+              {
+                addToMap(buildString(phraseBuilder.get(i)), phrases);
+                phraseBuilder.get(i).removeFirst();
+              }
+            }
+          }
         }
         scanner.close(); // Close the scanner to release resources
       } catch (FileNotFoundException e) {
         System.err.println("Error: File not found at " + filePath);
         e.printStackTrace();
-      }
-
-      for (int i = 2; i <= maxNgramSize; i++) {
-        for (int j = 0; j <= words.size() - i; j++) {
-          String phrase = "";
-          for (int k = 0; k < i; k++) {
-            if (k == 0) {
-              phrase = words.get(j);
-            } else {
-              phrase = phrase + " " + words.get(j + k);
-            }
-          }
-          addToMap(phrase, phrases);
-        }
-
       }
     }
 
@@ -79,6 +79,11 @@ public class Main
 
 
   }
+
+  public static String buildString(ArrayDeque<String> deque) {
+    return String.join(" ", deque);
+  }
+
   public static LinkedHashMap<String, Integer> sortPhrases(Map<String, Integer> phrases) {
     LinkedHashMap<String, Integer> sortedPhrases = phrases.entrySet()
             .stream()
@@ -92,12 +97,12 @@ public class Main
     return sortedPhrases;
   }
 
-  public static void addToMap(String word, Map<String, Integer> returnList) {
+  public static void addToMap(String phrase, Map<String, Integer> returnList) {
     int count = 0;
-    if (returnList.containsKey(word)) {
-      count = returnList.get(word);
+    if (returnList.containsKey(phrase)) {
+      count = returnList.get(phrase);
     }
-    returnList.put(word, count+1);
+    returnList.put(phrase, count+1);
   }
 
   private static String cleanWord(String word) {
