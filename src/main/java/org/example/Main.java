@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Main
@@ -18,7 +19,7 @@ public class Main
     String inputPath = args[0];
     String outputPath = args[2];
     List<String> fileNames = new ArrayList<>();
-    Map<String, Integer> phrases = new HashMap<>();
+    ConcurrentHashMap<String, Integer> phrases = new ConcurrentHashMap<>();
     LinkedHashMap<String, Integer> sortedPhrases = new LinkedHashMap<>();
 
     try (Scanner scanner = new Scanner(new File(inputPath))) {
@@ -31,40 +32,19 @@ public class Main
       System.err.println("File not found: " + e.getMessage());
     }
 
-    for (String filePath: fileNames) {
-      List<String> words = new ArrayList<>();
 
+    fileNames.parallelStream().forEach(filePath -> {
       try {
-        File file = new File(filePath);
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNext()) {
-          String word = cleanWord(scanner.next());
-          words.add(word);
-        }
-        scanner.close(); // Close the scanner to release resources
-      } catch (FileNotFoundException e) {
-        System.err.println("Error: File not found at " + filePath);
-        e.printStackTrace();
+        processFile(filePath, maxNgramSize, phrases);
+      } catch (Exception e) {
+        System.err.println("Error processing " + filePath + ": " + e.getMessage());
       }
+    });
 
-      for (int i = 2; i <= maxNgramSize; i++) {
-        for (int j = 0; j <= words.size() - i; j++) {
-          String phrase = "";
-          for (int k = 0; k < i; k++) {
-            if (k == 0) {
-              phrase = words.get(j);
-            } else {
-              phrase = phrase + " " + words.get(j + k);
-            }
-          }
-          addToMap(phrase, phrases);
-        }
 
-      }
-    }
+
 
     sortedPhrases = sortPhrases(phrases);
-    System.out.println(sortedPhrases);
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
       for (Map.Entry<String, Integer> entry : sortedPhrases.entrySet()) {
@@ -79,6 +59,50 @@ public class Main
 
 
   }
+
+  public static void processFile(String filePath, int maxNgramSize, Map<String, Integer> phrases) {
+    List<ArrayDeque<String>> phraseBuilder = new ArrayList<>(maxNgramSize);
+
+    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        for (String rawWord : line.split("\\s+"))
+        {
+          String word=cleanWord(rawWord);
+          if (word.isEmpty()) continue;
+          for (int i=0; i < maxNgramSize - 1; i++)
+          {
+            if (phraseBuilder.size() <= i)
+            {
+              ArrayDeque<String> starter=new ArrayDeque<>();
+              starter.add(word);
+              phraseBuilder.add(starter);
+            } else
+            {
+              phraseBuilder.get(i).add(word);
+              if (phraseBuilder.get(i).size() == i + 2)
+              {
+                phrases.merge(buildString(phraseBuilder.get(i)), 1, Integer::sum);
+                phraseBuilder.get(i).removeFirst();
+              }
+            }
+          }
+        }
+      }
+    } catch (FileNotFoundException e) {
+      System.err.println("Error: File not found at " + filePath);
+      e.printStackTrace();
+    } catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public static String buildString(ArrayDeque<String> deque) {
+    return String.join(" ", deque);
+  }
+
   public static LinkedHashMap<String, Integer> sortPhrases(Map<String, Integer> phrases) {
     LinkedHashMap<String, Integer> sortedPhrases = phrases.entrySet()
             .stream()
@@ -92,12 +116,12 @@ public class Main
     return sortedPhrases;
   }
 
-  public static void addToMap(String word, Map<String, Integer> returnList) {
+  public static void addToMap(String phrase, Map<String, Integer> returnList) {
     int count = 0;
-    if (returnList.containsKey(word)) {
-      count = returnList.get(word);
+    if (returnList.containsKey(phrase)) {
+      count = returnList.get(phrase);
     }
-    returnList.put(word, count+1);
+    returnList.put(phrase, count+1);
   }
 
   private static String cleanWord(String word) {
